@@ -1,7 +1,7 @@
 <?php
 
 
-namespace mlsdmtiry\PartyFriends;
+namespace mlsdmitry\PartyFriends;
 
 
 use CortexPE\Commando\args\BaseArgument;
@@ -42,31 +42,43 @@ class FCommands extends BaseCommand
             $sender->sendMessage($this->getUsage());
         switch ($args[0]) {
             case "accept":
-                if (!isset($args[1]))
+                if (!isset($args[1])) {
                     $sender->sendMessage($this->getUsage());
+                    return;
+                }
                 break;
             case "add":
-                if (!isset($args[1]))
+                if (!isset($args[1])) {
                     $sender->sendMessage($this->getUsage());
+                    return;
+                }
                 break;
             case "deny":
-                if (!isset($args[1]))
+                if (!isset($args[1])) {
                     $sender->sendMessage($this->getUsage());
+                    return;
+                }
                 break;
             case "help":
                 $sender->sendMessage($this->getUsage());
                 break;
             case "list":
-                if (!isset($args[1]))
+                if (!isset($args[1])) {
                     $sender->sendMessage($this->getUsage());
+                    return;
+                }
                 break;
             case "remove":
-                if (!isset($args[1]))
+                if (!isset($args[1])) {
                     $sender->sendMessage($this->getUsage());
+                    return;
+                }
                 break;
             case "requests":
-                if (!isset($args[1]))
+                if (!isset($args[1])) {
                     $sender->sendMessage($this->getUsage());
+                    return;
+                }
                 break;
             case "toggle":
                 //
