@@ -4,6 +4,8 @@
 namespace mlsdmitry\PartyFriends;
 
 
+use mlsdmitry\LangAPI\Lang;
+use mlsdmitry\PartyFriends\party\Request;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
@@ -48,18 +50,26 @@ class PCommands extends Command
     public function execute(CommandSender $sender, string $aliasUsed, array $args): void
     {
         $p = Server::getInstance()->getPlayer($sender->getName());
-        if (isset($args[0]))
+        print_r($args);
+        if (!isset($args[0]))
             $sender->sendMessage($this->getUsage());
         switch ($args[0]) {
             case "help":
                 $sender->sendMessage($this->getUsage());
+                PManager::
                 break;
             case "invite":
                 if (!isset($args[1])) {
                     $sender->sendMessage($this->getUsage());
                     return;
                 }
-                PManager::try_promote_or_invite($p, $args[1], PManager::INVITE_COMMAND);
+                $cause = PManager::await_accept($p, $args[1], Request::INVITE_COMMAND);
+                if ($cause === true) {
+                    $sender->sendMessage(Lang::get('invite-success', ['nickname' => $args[1]], $p));
+                } elseif ($cause === PManager::IS_OFFLINE) {
+                    $sender->sendMessage(Lang::get('player-offline', ['nickname' => $args[1]], $p));
+                }
+                print_r(PManager::getParties());
                 break;
 
             case "leave":
@@ -75,7 +85,13 @@ class PCommands extends Command
                     $sender->sendMessage($this->getUsage());
                     return;
                 }
-                PManager::try_promote_or_invite($p, $args[1], PManager::PROMOTE_COMMAND);
+                $cause = PManager::await_accept($p, $args[1], Request::PROMOTE_COMMAND);
+                if ($cause === true) {
+                    $sender->sendMessage(Lang::get('promote-success', ['nickname' => $args[1]], $p));
+                } elseif ($cause === PManager::IS_OFFLINE) {
+                    $sender->sendMessage(Lang::get('player-offline', ['nickname' => $args[1]], $p));
+                }
+                print_r(PManager::getParties());
                 break;
 
             case "home":
@@ -87,18 +103,31 @@ class PCommands extends Command
                     $sender->sendMessage($this->getUsage());
                     return;
                 }
-                PManager::remove($p, $args[1]);
                 break;
             case "warp":
 
                 break;
 
             case "accept":
-                //
+                if (!isset($args[1])) {
+                    $sender->sendMessage($this->getUsage());
+                    return;
+                }
+                $cause = PManager::accept($p, $args[1]);
+                if ($cause === true) {
+                    $sender->sendMessage(Lang::get('accept-success', ['nickname' => $args[1]], $p));
+                } elseif ($cause === PManager::IS_OFFLINE) {
+                    $sender->sendMessage(Lang::get('player-offline', ['nickname' => $args[1]], $p));
+                } elseif ($cause === PManager::NOT_FOUND) {
+                    $sender->sendMessage(Lang::get('player-not-found', ['nickname' => $args[1]], $p));
+                } elseif ($cause === PManager::PARTY_EXPIRED) {
+                    $sender->sendMessage(Lang::get('party-expired', [], $p));
+                }
+                print_r(PManager::getParties());
                 break;
 
             case "disband":
-
+//                PManager::disbandParty($p);
                 break;
 
             case "mute":

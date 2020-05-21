@@ -1,0 +1,34 @@
+<?php
+
+
+namespace mlsdmitry\PartyFriends\party\events;
+
+
+use mlsdmitry\PartyFriends\party\Party;
+use mlsdmitry\PartyFriends\PartyFriends;
+use pocketmine\event\Cancellable;
+use pocketmine\event\plugin\PluginEvent;
+use pocketmine\Player;
+use pocketmine\plugin\Plugin;
+
+class PartyDisbandEvent extends PluginEvent implements Cancellable
+{
+
+    /** @var Party $party */
+    private $party;
+
+    public function __construct(Party $party)
+    {
+        $this->party = $party;
+        parent::__construct(PartyFriends::make());
+    }
+
+    /**
+     * @return Party
+     */
+    public function getParty(): Party
+    {
+        return $this->party;
+    }
+
+}
