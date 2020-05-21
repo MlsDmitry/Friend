@@ -125,6 +125,7 @@ class PCommands extends Command
                 }
                 print_r(PManager::getParties());
                 break;
+                
 
             case "disband":
 //                PManager::disbandParty($p);
