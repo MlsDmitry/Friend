@@ -1,7 +1,7 @@
 <?php
 
 
-namespace mlsdmitry\PartyFriends;
+namespace mlsdmitry\PartyFriends\party;
 
 
 use DateTime;
@@ -9,8 +9,8 @@ use mlsdmitry\LangAPI\Lang;
 use mlsdmitry\PartyFriends\party\events\PartyDisbandEvent;
 use mlsdmitry\PartyFriends\party\events\PlayerInvitedToPartyEvent;
 use mlsdmitry\PartyFriends\party\events\PlayerPromoteEvent;
-use mlsdmitry\PartyFriends\party\Party;
-use mlsdmitry\PartyFriends\party\Request;
+use mlsdmitry\PartyFriends\party\obj\Party;
+use mlsdmitry\PartyFriends\party\obj\Request;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\player\PlayerQuitEvent;

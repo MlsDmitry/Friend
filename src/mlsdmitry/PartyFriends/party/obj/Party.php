@@ -1,7 +1,7 @@
 <?php
 
 
-namespace mlsdmitry\PartyFriends\party;
+namespace mlsdmitry\PartyFriends\party\obj;
 
 
 use mlsdmitry\PartyFriends\PManager;

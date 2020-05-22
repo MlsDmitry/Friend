@@ -1,52 +1,19 @@
 <?php
 
 
-namespace mlsdmitry\PartyFriends;
+namespace mlsdmitry\PartyFriends\party;
 
 
 use mlsdmitry\LangAPI\Lang;
-use mlsdmitry\PartyFriends\party\Request;
+use mlsdmitry\PartyFriends\party\obj\Request;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
 use pocketmine\Server;
 
 class PCommands extends Command
 {
 
-//    protected function prepare(): void
-//    {
-//        //! /p help
-//        $this->registerArgument(0, new RawStringArgument("help", false));
-//        //! /p invite NickName
-//        $this->registerArgument(0, new RawStringArgument("invite", false));
-//        //! /p leave
-//        $this->registerArgument(0, new RawStringArgument("leave", false));
-//        //! /p list
-//        $this->registerArgument(0, new RawStringArgument("list", false));
-//        //! /p promote NickName
-//        $this->registerArgument(0, new RawStringArgument("promote", false));
-//        //! /p home
-//        $this->registerArgument(0, new RawStringArgument("home", false));
-//        //! /p remove NickName
-//        $this->registerArgument(0, new RawStringArgument("remove", false));
-//        //! /p warp
-//        $this->registerArgument(0, new RawStringArgument("warp", false));
-//        //! /p accept NickName
-//        $this->registerArgument(0, new RawStringArgument("accept", false));
-//        //! /p disband
-//        $this->registerArgument(0, new RawStringArgument("disband", false));
-////        $this->registerArgument(0, new RawStringArgument("disband", false));
-//        //! /p mute
-//        $this->registerArgument(0, new RawStringArgument("mute", false));
-//        //! /p poll
-//        $this->registerArgument(0, new RawStringArgument("poll", false));
-//        //! /p challenge
-//        $this->registerArgument(0, new RawStringArgument("challenge", false));
 //
-//        $this->registerArgument(1, new RawStringArgument("nick_name", false));
-//
-//    }
 
     public function execute(CommandSender $sender, string $aliasUsed, array $args): void
     {
@@ -57,7 +24,6 @@ class PCommands extends Command
         switch ($args[0]) {
             case "help":
                 $sender->sendMessage($this->getUsage());
-                PManager::
                 break;
             case "invite":
                 if (!isset($args[1])) {
