@@ -5,21 +5,20 @@ namespace mlsdmitry\PartyFriends\party;
 
 
 use DateTime;
-use mlsdmitry\LangAPI\Lang;
 use mlsdmitry\PartyFriends\party\events\PartyDisbandEvent;
 use mlsdmitry\PartyFriends\party\events\PlayerInvitedToPartyEvent;
 use mlsdmitry\PartyFriends\party\events\PlayerPromoteEvent;
 use mlsdmitry\PartyFriends\party\obj\Party;
 use mlsdmitry\PartyFriends\party\obj\Request;
+use mlsdmitry\PartyFriends\PartyFriends;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerChatEvent;
-use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\Player;
 use pocketmine\Server;
-use pocketmine\utils\Utils;
 
 class PManager implements Listener
 {
+
+    // TODO add already const and logic
     const DONT_HAVE_REQUESTS = 8;
     /**
      * @var array
@@ -120,7 +119,7 @@ class PManager implements Listener
      */
     public static function name($p_name)
     {
-        return is_object($p_name) ? strtolower($p_name->getName()) : strtolower($p_name);
+        return is_object($p_name) ? strtolower(trim($p_name->getName())) : strtolower(trim($p_name));
     }
 
     /**
@@ -129,7 +128,7 @@ class PManager implements Listener
      */
     public static function uuid($p_uuid)
     {
-        return is_object($p_uuid) ? $p_uuid->getName() : $p_uuid;
+        return is_object($p_uuid) ? $p_uuid->getUniqueId()->toString() : $p_uuid;
     }
 
 

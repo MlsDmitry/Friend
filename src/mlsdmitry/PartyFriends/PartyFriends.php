@@ -5,23 +5,27 @@ namespace mlsdmitry\PartyFriends;
 
 
 use mlsdmitry\LangAPI\Lang;
-use mlsdmitry\PartyFriends\frends\FManager;
+use mlsdmitry\PartyFriends\friends\FManager;
 use mlsdmitry\PartyFriends\party\PManager;
 use pocketmine\plugin\PluginBase;
 use mlsdmitry\PartyFriends\friends\FCommands;
 use mlsdmitry\PartyFriends\party\PCommands;
-use SQLite3;
+use pocketmine\utils\Config;
 
 class PartyFriends extends PluginBase
 {
     /** @var PartyFriends $instance */
     private static $instance;
-    /** @var SQLite3 $friends_db */
-    private static $friends_db;
+    /** @var Config $friends_db */
+    public static $friends_db;
+    /** @var Config $associations */
+    public static $associations;
 
     public function onEnable()
     {
-        self::$friends_db = new SQLite3($this->getDataFolder() . 'friends.sqlite3');
+        $this->init_default_config();
+        self::$friends_db = new Config($this->getDataFolder() . DIRECTORY_SEPARATOR . 'friends.yml', Config::YAML);
+        self::$associations = new Config($this->getDataFolder() . DIRECTORY_SEPARATOR . 'associations.json', Config::JSON);
         new Lang($this);
         $this->getServer()->getCommandMap()->registerAll('PF SYSTEM', [
             new FCommands('f', 'Manage your friends', '/f help', ['friends']),
@@ -31,12 +35,17 @@ class PartyFriends extends PluginBase
         $this->getServer()->getPluginManager()->registerEvents(new FManager(), $this);
     }
 
-    private function prepareSQLite()
+    private function init_default_config()
     {
-        self::$friends_db->exec("CREATE TABLE IF NOT EXISTS friends (
-            nickname TEXT,
-            
-        )");
+        $data = [
+            'party_expire' => 1,
+            'friend_request_expire' => 5
+        ];
+        foreach ($data as $key => $value) {
+            if (!$this->getConfig()->exists($key))
+                $this->getConfig()->set($key, $value);
+        }
+        $this->getConfig()->save();
     }
 
     public function onLoad()

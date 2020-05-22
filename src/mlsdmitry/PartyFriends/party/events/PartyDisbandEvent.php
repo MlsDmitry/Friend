@@ -4,11 +4,11 @@
 namespace mlsdmitry\PartyFriends\party\events;
 
 
-use mlsdmitry\PartyFriends\party\Party;
+use mlsdmitry\PartyFriends\party\obj\Party;
 use mlsdmitry\PartyFriends\PartyFriends;
-use mlsdmitry\PartyFriends\PManager;
 use pocketmine\event\Cancellable;
 use pocketmine\event\plugin\PluginEvent;
+use mlsdmitry\PartyFriends\party\PManager;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 

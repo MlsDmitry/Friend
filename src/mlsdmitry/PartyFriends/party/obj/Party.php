@@ -4,8 +4,8 @@
 namespace mlsdmitry\PartyFriends\party\obj;
 
 
-use mlsdmitry\PartyFriends\PManager;
 use pocketmine\Player;
+use mlsdmitry\PartyFriends\party\PManager;
 
 class Party
 {

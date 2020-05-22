@@ -33,16 +33,16 @@ class PCommands extends Command
                 $cause = PManager::await_accept($p, $args[1], Request::INVITE_COMMAND);
                 var_dump('cause', $cause);
                 if ($cause === true) {
-                    $sender->sendMessage(Lang::get('invite-success', ['nickname' => $args[1]], $p));
+                    $sender->sendMessage(Lang::get('p-invite-success', ['nickname' => $args[1]], $p));
                 } elseif ($cause === PManager::IS_OFFLINE) {
-                    $sender->sendMessage(Lang::get('player-offline', ['nickname' => $args[1]], $p));
+                    $sender->sendMessage(Lang::get('p-player-offline', ['nickname' => $args[1]], $p));
                 }
                 break;
 
             case "leave":
                 $cause = PManager::leave($p);
                 if ($cause === PManager::DONT_HAVE_PARTY) {
-                    $sender->sendMessage(Lang::get('dont-have-party', [], $p));
+                    $sender->sendMessage(Lang::get('p-dont-have-party', [], $p));
                 }
                 break;
 
@@ -52,9 +52,9 @@ class PCommands extends Command
                 // OMG I am idiot :/
                 $cause = PManager::get_followers($p);
                 if ($cause === PManager::DONT_HAVE_PARTY) {
-                    $p->sendMessage(Lang::get('dont-have-party', [], $p));
+                    $p->sendMessage(Lang::get('p-dont-have-party', [], $p));
                 } else {
-                    $p->sendMessage(Lang::get('player-list-command', ['list' => implode(' ', $cause)], $p));
+                    $p->sendMessage(Lang::get('p-player-list-command', ['list' => implode(' ', $cause)], $p));
                 }
                 break;
 
@@ -65,9 +65,9 @@ class PCommands extends Command
                 }
                 $cause = PManager::await_accept($p, $args[1], Request::PROMOTE_COMMAND);
                 if ($cause === true) {
-                    $sender->sendMessage(Lang::get('promote-success', ['nickname' => $args[1]], $p));
+                    $sender->sendMessage(Lang::get('p-promote-success', ['nickname' => $args[1]], $p));
                 } elseif ($cause === PManager::IS_OFFLINE) {
-                    $sender->sendMessage(Lang::get('player-offline', ['nickname' => $args[1]], $p));
+                    $sender->sendMessage(Lang::get('p-player-offline', ['nickname' => $args[1]], $p));
                 }
                 break;
 
@@ -94,11 +94,11 @@ class PCommands extends Command
                 if ($cause === true) {
                     $sender->sendMessage(Lang::get('accept-success', ['nickname' => $args[1]], $p));
                 } elseif ($cause === PManager::IS_OFFLINE) {
-                    $sender->sendMessage(Lang::get('player-offline', ['nickname' => $args[1]], $p));
+                    $sender->sendMessage(Lang::get('p-player-offline', ['nickname' => $args[1]], $p));
                 } elseif ($cause === PManager::NOT_FOUND) {
-                    $sender->sendMessage(Lang::get('player-not-found', ['nickname' => $args[1]], $p));
+                    $sender->sendMessage(Lang::get('p-player-not-found', ['nickname' => $args[1]], $p));
                 } elseif ($cause === PManager::PARTY_EXPIRED) {
-                    $sender->sendMessage(Lang::get('party-expired', [], $p));
+                    $sender->sendMessage(Lang::get('p-party-expired', [], $p));
                 }
                 break;
 
