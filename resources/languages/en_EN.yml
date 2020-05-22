@@ -1,0 +1,23 @@
+---
+# NOTE don't remove p- or f- suffix it's prevent from message duplication
+# PARTY MESSAGE
+p-invite-success: "You successfully invited {nickname}"
+p-promote-success: "promote success{nickname}"
+p-player-offline: "{nickname} is offline"
+p-accept-success: "{nickname} accepted"
+p-player-not-found: "{nickname} not found"
+p-party-expired: "Party expired"
+p-player-list-command: "Your followers: {list}"
+p-dont-have-party: "You don't have party, create one -> /p invite <nickname>"
+# FRIENDS MESSAGES
+f-already-friend: "{nickname} already your friend"
+f-dont-have-requests: "You don't have friend requests"
+f-invalid-name: "You passed invalid name, we didn't found {nickname}"
+f-request-expired: "request from {nickname} expired, you can't accept it"
+f-success-accept: "{nickname} now your friend "
+f-success-request: "Request to {nickname} sent"
+f-dont-have-friends: "You don't have friends. /f add <nickname> to add your first friend"
+f-friend-list: "Your friends: {friends}"
+f-player-offline: "{nickname} is offline"
+f-requests-list: "Your requests: {requests}"
+...
