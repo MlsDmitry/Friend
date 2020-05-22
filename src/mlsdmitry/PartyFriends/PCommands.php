@@ -8,6 +8,7 @@ use mlsdmitry\LangAPI\Lang;
 use mlsdmitry\PartyFriends\party\Request;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\Player;
 use pocketmine\Server;
 
 class PCommands extends Command
@@ -64,20 +65,31 @@ class PCommands extends Command
                     return;
                 }
                 $cause = PManager::await_accept($p, $args[1], Request::INVITE_COMMAND);
+                var_dump('cause', $cause);
                 if ($cause === true) {
                     $sender->sendMessage(Lang::get('invite-success', ['nickname' => $args[1]], $p));
                 } elseif ($cause === PManager::IS_OFFLINE) {
                     $sender->sendMessage(Lang::get('player-offline', ['nickname' => $args[1]], $p));
                 }
-                print_r(PManager::getParties());
                 break;
 
             case "leave":
-
+                $cause = PManager::leave($p);
+                if ($cause === PManager::DONT_HAVE_PARTY) {
+                    $sender->sendMessage(Lang::get('dont-have-party', [], $p));
+                }
                 break;
 
             case "list":
-
+                // idk why am I using callable function, but mby somewhere in code I will need this,
+                // or you will use this api(PManager::get_followers().
+                // OMG I am idiot :/
+                $cause = PManager::get_followers($p);
+                if ($cause === PManager::DONT_HAVE_PARTY) {
+                    $p->sendMessage(Lang::get('dont-have-party', [], $p));
+                } else {
+                    $p->sendMessage(Lang::get('player-list-command', ['list' => implode(' ', $cause)], $p));
+                }
                 break;
 
             case "promote":
@@ -91,7 +103,6 @@ class PCommands extends Command
                 } elseif ($cause === PManager::IS_OFFLINE) {
                     $sender->sendMessage(Lang::get('player-offline', ['nickname' => $args[1]], $p));
                 }
-                print_r(PManager::getParties());
                 break;
 
             case "home":
@@ -123,7 +134,6 @@ class PCommands extends Command
                 } elseif ($cause === PManager::PARTY_EXPIRED) {
                     $sender->sendMessage(Lang::get('party-expired', [], $p));
                 }
-                print_r(PManager::getParties());
                 break;
 
             case "disband":
