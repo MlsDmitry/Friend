@@ -6,8 +6,11 @@ namespace mlsdmitry\PartyFriends\party;
 
 use mlsdmitry\LangAPI\Lang;
 use mlsdmitry\PartyFriends\party\obj\Request;
+use mlsdmitry\PartyFriends\PartyFriends;
+use mlsdmitry\PartyFriends\Utils;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\Player;
 use pocketmine\Server;
 
 class PCommands extends Command
@@ -17,8 +20,9 @@ class PCommands extends Command
 
     public function execute(CommandSender $sender, string $aliasUsed, array $args): void
     {
-        $p = Server::getInstance()->getPlayer($sender->getName());
-        print_r($args);
+        $p = PartyFriends::getCachedPlayer($sender->getName());
+        var_dump('sender', $sender->getName());
+        var_dump('name', $p->getName());
         if (!isset($args[0]))
             $sender->sendMessage($this->getUsage());
         switch ($args[0]) {
@@ -30,9 +34,12 @@ class PCommands extends Command
                     $sender->sendMessage($this->getUsage());
                     return;
                 }
-                $cause = PManager::await_accept($p, $args[1], Request::INVITE_COMMAND);
-                var_dump('cause', $cause);
-                if ($cause === true) {
+                $data = PManager::is_follower($p); // $owner_name => $party(Party obj)
+                if ($data)
+                    $cause = PManager::await_accept($data[1]->getOwner(), $args[1], Request::INVITE_COMMAND);
+                else
+                    $cause = PManager::await_accept($p, $args[1], Request::INVITE_COMMAND);
+                if ($cause === PManager::SUCCESS) {
                     $sender->sendMessage(Lang::get('p-invite-success', ['nickname' => $args[1]], $p));
                 } elseif ($cause === PManager::IS_OFFLINE) {
                     $sender->sendMessage(Lang::get('p-player-offline', ['nickname' => $args[1]], $p));
@@ -52,9 +59,18 @@ class PCommands extends Command
                 // OMG I am idiot :/
                 $cause = PManager::get_followers($p);
                 if ($cause === PManager::DONT_HAVE_PARTY) {
-                    $p->sendMessage(Lang::get('p-dont-have-party', [], $p));
+                    $sender->sendMessage(Lang::get('p-dont-have-party', [], $p));
                 } else {
-                    $p->sendMessage(Lang::get('p-player-list-command', ['list' => implode(' ', $cause)], $p));
+                    $followers = [];
+                    /**
+                     * @var string $uuid
+                     * @var Player $p
+                     */
+                    foreach ($cause as $uuid => $p) {
+                        $followers[] = $p->getName();
+                    }
+                    print_r(PManager::getParties());
+                    $sender->sendMessage(Lang::get('p-player-list-command', ['list' => implode(', ', $followers)], $p));
                 }
                 break;
 
@@ -64,7 +80,7 @@ class PCommands extends Command
                     return;
                 }
                 $cause = PManager::await_accept($p, $args[1], Request::PROMOTE_COMMAND);
-                if ($cause === true) {
+                if ($cause === PManager::SUCCESS) {
                     $sender->sendMessage(Lang::get('p-promote-success', ['nickname' => $args[1]], $p));
                 } elseif ($cause === PManager::IS_OFFLINE) {
                     $sender->sendMessage(Lang::get('p-player-offline', ['nickname' => $args[1]], $p));
@@ -91,8 +107,8 @@ class PCommands extends Command
                     return;
                 }
                 $cause = PManager::accept($p, $args[1]);
-                if ($cause === true) {
-                    $sender->sendMessage(Lang::get('accept-success', ['nickname' => $args[1]], $p));
+                if ($cause === PManager::SUCCESS) {
+                    $sender->sendMessage(Lang::get('p-accept-success', ['nickname' => $args[1]], $p));
                 } elseif ($cause === PManager::IS_OFFLINE) {
                     $sender->sendMessage(Lang::get('p-player-offline', ['nickname' => $args[1]], $p));
                 } elseif ($cause === PManager::NOT_FOUND) {

@@ -4,6 +4,7 @@
 namespace mlsdmitry\PartyFriends\party\obj;
 
 
+use mlsdmitry\PartyFriends\Utils;
 use pocketmine\Player;
 use mlsdmitry\PartyFriends\party\PManager;
 
@@ -52,12 +53,12 @@ class Party
      */
     public function isFollower($player_uuid): bool
     {
-        return isset($this->followers[PManager::name($player_uuid)]);
+        return isset($this->followers[Utils::name($player_uuid)]);
     }
 
     public function isOwner($player_uuid): bool
     {
-        return $this->owner->getUniqueId()->toString() === $player_uuid;
+        return Utils::uuid($this->owner) === $player_uuid;
     }
 
     /**
@@ -71,12 +72,12 @@ class Party
 
     public function addFollower(Player $p)
     {
-        $this->followers[$p->getUniqueId()->toString()] = $p;
+        $this->followers[Utils::uuid($p)] = $p;
     }
 
     public function removeFollower(Player $p)
     {
-        if (isset($this->followers[$p->getUniqueId()->toString()]))
-            unset($this->followers[$p->getUniqueId()->toString()]);
+        if (isset($this->followers[Utils::uuid($p)]))
+            unset($this->followers[Utils::uuid($p)]);
     }
 }

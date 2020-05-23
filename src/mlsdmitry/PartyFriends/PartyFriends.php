@@ -7,9 +7,11 @@ namespace mlsdmitry\PartyFriends;
 use mlsdmitry\LangAPI\Lang;
 use mlsdmitry\PartyFriends\friends\FManager;
 use mlsdmitry\PartyFriends\party\PManager;
+use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use mlsdmitry\PartyFriends\friends\FCommands;
 use mlsdmitry\PartyFriends\party\PCommands;
+use pocketmine\Server;
 use pocketmine\utils\Config;
 
 class PartyFriends extends PluginBase
@@ -20,6 +22,27 @@ class PartyFriends extends PluginBase
     public static $friends_db;
     /** @var Config $associations */
     public static $associations;
+    /** @var array $cached_players */
+    public static $cached_players = [];
+
+    /**
+     * @param string $nick_name
+     * @return Player|null
+     */
+    public static function getCachedPlayer($nick_name)
+    {
+        $name = Utils::name($nick_name);
+        if (isset(self::$cached_players[$name]))
+            if (!self::$cached_players[$name]->isOnline()) {
+                unset(self::$cached_players[$name]);
+                return null;
+            } else
+                return self::$cached_players[$name];
+        else {
+            self::$cached_players[$name] = Server::getInstance()->getPlayer($name);
+            return self::$cached_players[$name];
+        }
+    }
 
     public function onEnable()
     {
@@ -76,4 +99,6 @@ class PartyFriends extends PluginBase
     {
         return self::$instance;
     }
+
+
 }

@@ -6,6 +6,7 @@ namespace mlsdmitry\PartyFriends\friends;
 
 use mlsdmitry\LangAPI\Lang;
 use mlsdmitry\PartyFriends\party\PManager;
+use mlsdmitry\PartyFriends\PartyFriends;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
@@ -19,7 +20,7 @@ class FCommands extends Command
     {
         if (!isset($args[0]))
             $sender->sendMessage($this->getUsage());
-        $p = Server::getInstance()->getPlayer($sender->getName());
+        $p = PartyFriends::getCachedPlayer($sender->getName());
         switch ($args[0]) {
             case "accept":
                 if (!isset($args[1])) {
@@ -79,11 +80,11 @@ class FCommands extends Command
                      * @var string $name
                      */
                     foreach ($cause as $name) {
-                        $p = Server::getInstance()->getPlayer($name);
-                        if ($p->isOnline())
-                            $friends[] = C::RED . $p->getName() . C::GREEN . ' [ONLINE]' . C::RESET;
-                        else
+                        $p = PartyFriends::getCachedPlayer($name);;
+                        if (is_null($p))
                             $friends[] = C::GRAY . $p->getName() . C::GRAY . ' [OFFLINE]' . C::RESET;
+                        else
+                            $friends[] = C::RED . $p->getName() . C::GREEN . ' [ONLINE]' . C::RESET;
 
                     }
                     $sender->sendMessage(Lang::get('f-friend-list', ['friends' => implode(', ', $friends)], $p));

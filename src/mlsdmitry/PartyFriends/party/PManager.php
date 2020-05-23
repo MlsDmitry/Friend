@@ -14,6 +14,7 @@ use mlsdmitry\PartyFriends\PartyFriends;
 use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\Server;
+use mlsdmitry\PartyFriends\Utils;
 
 class PManager implements Listener
 {
@@ -39,6 +40,7 @@ class PManager implements Listener
 
     const DISBAND_COMMAND = 8;
     const LEAVE_COMMAND = 9;
+    const SUCCESS = 10;
 
 
     /*
@@ -69,15 +71,15 @@ class PManager implements Listener
      */
     public static function has_party($owner_name)
     {
-        return isset(self::$parties[self::name($owner_name)]);
+        return isset(self::$parties[Utils::name($owner_name)]);
     }
 
     /**
      * @param string | Player $p
      * @param null $owner_name
-     * @return bool
+     * @return array|null
      */
-    public static function is_follower($p, $owner_name = null)
+    public static function is_follower($p, $owner_name = null): ?array
     {
         if (is_null($owner_name)) {
             /**
@@ -85,13 +87,13 @@ class PManager implements Listener
              * @var Party $party
              */
             foreach (self::$parties as $owner_name => $party) {
-                if ($party->isFollower(self::uuid($p)))
-                    return true;
+                if ($party->isFollower(Utils::uuid($p)))
+                    return [$owner_name, $party];
             }
-            return false;
+            return null;
         } else {
             /** @var Party $party */
-            $party = self::$parties[self::name($owner_name)];
+            $party = self::$parties[Utils::name($owner_name)];
             $party->isFollower($p);
         }
     }
@@ -113,24 +115,6 @@ class PManager implements Listener
         return true;
     }
 
-    /**
-     * @param string | Player $p_name
-     * @return string
-     */
-    public static function name($p_name)
-    {
-        return is_object($p_name) ? strtolower(trim($p_name->getName())) : strtolower(trim($p_name));
-    }
-
-    /**
-     * @param string | Player $p_uuid
-     * @return string
-     */
-    public static function uuid($p_uuid)
-    {
-        return is_object($p_uuid) ? $p_uuid->getUniqueId()->toString() : $p_uuid;
-    }
-
 
     /**
      * @param Player $owner
@@ -143,11 +127,11 @@ class PManager implements Listener
         if (!$causes)
             return $causes;
         /** @var Party $party */
-        $party = self::$parties[self::name($owner)];
+        $party = self::$parties[Utils::name($owner)];
 
         $ev = new PartyDisbandEvent($party, $cause);
         $ev->call();
-        unset(self::$parties[self::name($owner)]);
+        unset(self::$parties[Utils::name($owner)]);
     }
 
     /**
@@ -167,7 +151,7 @@ class PManager implements Listener
             return $cause;
         }
 
-        $awaiter = Server::getInstance()->getPlayer($awaiter_name);
+        $awaiter = PartyFriends::getCachedPlayer($awaiter_name);
         if (is_null($awaiter))
             return self::IS_OFFLINE;
 
@@ -175,9 +159,9 @@ class PManager implements Listener
         $r->setRequester($requester);
         $r->setAwaiter($awaiter);
         $r->setType($type);
-        self::$await_accept[self::name($awaiter_name)] = $r;
+        self::$await_accept[Utils::name($awaiter_name)] = $r;
 
-        return true;
+        return self::SUCCESS;
     }
 
 
@@ -196,7 +180,7 @@ class PManager implements Listener
             return $cause;
         }
         /** @var Party $party */
-        $party = self::$parties[self::name($owner)];
+        $party = self::$parties[Utils::name($owner)];
         $party->addFollower($follower);
         return true;
     }
@@ -211,16 +195,28 @@ class PManager implements Listener
 //        Utils::validateCallableSignature(function (Player $follower): void {
 //        }, $return_func);
 
-        $cause = self::validate_player($p_name, ['has_party']);
-        if ($cause !== true)
-            return $cause;
-
-        /** @var Party $party */
-        $party = self::$parties[self::name($p_name)];
-        $f = $party->getFollowers();
-        if ($party->isFollower(self::uuid($p_name))) {
-            unset($f[self::uuid($p_name)]);
-            $f[$party->getOwner()->getUniqueId()->toString()] = $party->getOwner();
+        $cause = self::has_party($p_name);
+        $f = [];
+        if ($cause !== true) {
+            $party_data = self::is_follower($p_name);
+            if (is_null($party_data))
+                return self::DONT_HAVE_PARTY;
+            /** @var Party $party */
+            $party = $party_data[1];
+            $f = $party->getFollowers();
+            print_r($f);
+            // we know that player is follower so -> exclude him from list
+            unset($f[Utils::uuid($p_name)]);
+            $f[Utils::uuid($party->getOwner())] = $party->getOwner();
+        } else {
+            /** @var Party $party */
+            $party = self::$parties[Utils::name($p_name)];
+            $f = $party->getFollowers();
+            // check if player is follower -> exclude him from list
+            if ($party->isFollower(Utils::uuid($p_name))) {
+                unset($f[Utils::uuid($p_name)]);
+                $f[Utils::uuid($party->getOwner())] = $party->getOwner();
+            }
         }
         return $f;
     }
@@ -232,13 +228,13 @@ class PManager implements Listener
      */
     public static function accept(Player $awaiter, string $requester_name)
     {
-        if (!isset(self::$await_accept[self::name($awaiter)]))
+        if (!isset(self::$await_accept[Utils::name($awaiter)]))
             return self::DONT_HAVE_REQUESTS;
 
         /** @var Request $request */
-        $request = self::$await_accept[self::name($awaiter)];
+        $request = self::$await_accept[Utils::name($awaiter)];
 
-        if (!self::name($request->getRequester()) === self::name($requester_name))
+        if (!Utils::name($request->getRequester()) === Utils::name($requester_name))
             return self::NOT_FOUND;
 
         $cause = self::validate_player($request->getRequester(), ['has_party']);
@@ -255,24 +251,23 @@ class PManager implements Listener
 
         $type = $request->getType();
         /** @var Party $party */
-        $party = self::$parties[self::name($request->getRequester())];
+        $party = self::$parties[Utils::name($request->getRequester())];
         if ($type === Request::INVITE_COMMAND) {
             $ev = new PlayerInvitedToPartyEvent($party, $awaiter);
             $ev->call();
-            // lol I deleted this line in last video :/
             self::addFollower($request->getRequester(), $awaiter);
-            print_r(self::$parties);
+            return self::SUCCESS;
         } elseif ($type === Request::PROMOTE_COMMAND) {
             $ev = new PlayerPromoteEvent($party, $awaiter);
             $ev->call();
             // Delete party
-            unset(self::$parties[self::name($party->getOwner())]);
+            unset(self::$parties[Utils::name($party->getOwner())]);
             $followers = $party->getFollowers();
-            if (isset($followers[$awaiter->getUniqueId()->toString()]))
-                unset($followers[$awaiter->getUniqueId()->toString()]);
-            $followers[$party->getOwner()->getUniqueId()->toString()] = $party->getOwner();
+            if (isset($followers[Utils::uuid($awaiter)]))
+                unset($followers[Utils::uuid($awaiter)]);
+            $followers[Utils::uuid($party->getOwner())] = $party->getOwner();
             self::registerParty($awaiter, $followers);
-            print_r(self::$parties);
+            return self::SUCCESS;
         }
     }
 
@@ -282,7 +277,7 @@ class PManager implements Listener
      */
     public static function registerParty(Player $owner, $followers = [])
     {
-        self::$parties[self::name($owner)] = new Party($owner, $followers);
+        self::$parties[Utils::name($owner)] = new Party($owner, $followers);
     }
 
 
@@ -295,7 +290,7 @@ class PManager implements Listener
         if (!self::has_party($p))
             return self::DONT_HAVE_PARTY;
         self::disband($p, self::LEAVE_COMMAND);
-        return true;
+        return self::SUCCESS;
     }
 
     /**
